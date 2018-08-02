@@ -138,7 +138,7 @@ class PeerManager(object):
         '''
         host = self.env.tor_proxy_host
         if self.env.tor_proxy_port is None:
-            ports = [9050, 9150, 1080]
+            ports = [9050, 9150, 1080, 9089]
         else:
             ports = [self.env.tor_proxy_port]
         while True:

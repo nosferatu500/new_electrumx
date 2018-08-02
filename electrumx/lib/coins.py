@@ -974,20 +974,38 @@ class FairCoin(Coin):
 
 
 class Zcash(EquihashMixin, Coin):
-    NAME = "Zcash"
-    SHORTNAME = "ZEC"
+    NAME = "CrypticCoin"
+    SHORTNAME = "CRYP"
     NET = "mainnet"
-    P2PKH_VERBYTE = bytes.fromhex("1CB8")
-    P2SH_VERBYTES = [bytes.fromhex("1CBD")]
+    P2PKH_VERBYTE = bytes.fromhex("13B6")
+    P2SH_VERBYTES = [bytes.fromhex("13BB")]
     WIF_BYTE = bytes.fromhex("80")
-    GENESIS_HASH = ('00040fe8ec8471911baa1db1266ea15d'
-                    'd06b4a8a5c453883c000b031973dce08')
+    GENESIS_HASH = ('000095aa3b6953c0757dbd0c6ba828fe'
+                    'fab484a15eec5ea6c3d2776e6ea4b38c')
     DESERIALIZER = lib_tx.DeserializerZcash
     TX_COUNT = 329196
     TX_COUNT_HEIGHT = 68379
     TX_PER_BLOCK = 5
-    RPC_PORT = 8232
+    RPC_PORT = 23202
     REORG_LIMIT = 800
+
+    @classmethod
+    def electrum_header(cls, header, height):
+        version, = struct.unpack('<I', header[:4])
+        timestamp, bits = struct.unpack('<II', header[100:108])
+
+        return {
+            'block_height': height,
+            'version': version,
+            'prev_block_hash': hash_to_hex_str(header[4:36]),
+            'merkle_root': hash_to_hex_str(header[36:68]),
+            'hash_reserved': hash_to_hex_str(header[68:100]),
+            'timestamp': timestamp,
+            'bits': bits,
+            'nonce': hash_to_hex_str(header[108:140]),
+            'n_solution': base64.b64encode(lib_tx.Deserializer(
+                header, start=140)._read_varbytes()).decode('utf8')
+        }
 
 
 class ZcashTestnet(Zcash):
